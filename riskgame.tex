@@ -1,0 +1,1030 @@
+%%% -*-LaTeX-*-
+%%% riskgame.tex.orig
+%%% Prettyprinted by texpretty lex version 0.02 [21-May-2001]
+%%% on Fri Jun 17 09:16:08 2022
+%%% for Steve Dunbar (sdunbar@family-desktop)
+
+\documentclass[12pt]{article}
+
+\input{../../../../etc/macros} %\input{../../../../etc/mzlatex_macros}
+\input{../../../../etc/pdf_macros}
+
+\bibliographystyle{plain}
+
+\begin{document}
+
+\myheader \mytitle
+
+\hr
+
+\sectiontitle{The Game of \emph{Risk} as a Markov Chain}
+
+\hr
+
+\usefirefox
+
+\hr
+
+% \visual{Study Tip}{../../../../CommonInformation/Lessons/studytip.png}
+% \section*{Study Tip}
+
+% \hr
+
+\visual{Rating}{../../../../CommonInformation/Lessons/rating.png}
+\section*{Rating} %one of
+% Everyone: contains no mathematics.
+% Student: contains scenes of mild algebra or calculus that may require guidance.
+Mathematically Mature:  may contain mathematics beyond calculus with
+proofs.  % Mathematicians Only: prolonged scenes of intense rigor.
+
+\hr
+
+\visual{Section Starter Question}{../../../../CommonInformation/Lessons/question_mark.png}
+\section*{Section Starter Question}
+
+When rolling three fair six-sided dice with outcomes \( Y_1 \), \( Y_2 \),
+\( Y_3 \), what are the order statistics of the outcome?
+
+\hr
+
+\visual{Key Concepts}{../../../../CommonInformation/Lessons/keyconcepts.png}
+\section*{Key Concepts}
+
+\begin{enumerate}
+    \item
+        \emph{Risk} is a board game of battles between two players, and
+        each battle consists of one or more rounds of combat between \(
+        A \) attacking armies and \( D \) defending armies.  The goal is
+        to develop the probability of winning the battle as a function
+        of \( A \) and \( D \) using a Markov chain with \( AD + A + D \)
+        states.
+\end{enumerate}
+
+\hr
+
+\visual{Vocabulary}{../../../../CommonInformation/Lessons/vocabulary.png}
+\section*{Vocabulary}
+\begin{enumerate}
+    \item
+        Given a sample of \( n \) identically distributed random values,
+        the \( \ell \)th \defn{order statistic} is the \( \ell \)th
+        largest value.%
+        \index{order statistics}
+\end{enumerate}
+
+\hr
+
+\section*{Notation}
+\begin{enumerate}
+    \item
+        \( A \) -- the number of attacking armies
+    \item
+        \( D \) -- the number of defending armies
+    \item
+        \( X_n \) -- the state of the system at the beginning of the \(
+        n \)th turn:
+        \[
+            X_n = (a_n, d_n), 0 \le a_n \le A, 0 \le d_n \le D
+        \] where \( a_n \) and \( d_n \) are the number of attacking and
+        defending armies respectively
+    \item
+        \( \rho_{i j \ell} \) -- the joint probabilities associated with
+        the best and second best roll from \( 2 \) or \( 3 \) six-sided
+        fair dice
+    \item
+        \( Y_1 \), \( Y_2 \), \( Y_3 \) -- the unordered outcome for an
+        attacker when rolling three dice
+    \item
+        \( W_1 \), \( W_2 \) -- the unordered outcome for an attacker
+        when rolling two dice
+    \item
+        \( Z_1 \), \( Z_2 \) -- the unordered outcome for a defender
+        rolling two dice
+    \item
+        \( Y^{(1)} \ge Y^{(2)} \ge Y^{(3)} \) -- the ordered random
+        variables are the \emph{order statistics}
+    \item
+        \( f_{ij}^{(n)} \) the probability that the first (and final)
+        visit form state \( i \) to absorbing state \( j \) occurs on
+        the \( n \)th turn
+    \item
+        \( F^{(n)} \) -- \( AD \times (A + D) \) matrix of these first
+        transitions
+    \item
+        \( F = (I - Q)^{-1} R \) -- probability that the system
+        eventually goes from transient state \( i \) to absorbing state \(
+        j \)
+    \item
+        \( R_A \) and \( R_D \) -- the number of armies remaining for
+        the attacker and defender respectively given the initial state \(
+        X_0 = (A, D) \) probabilities
+\end{enumerate}
+
+\visual{Mathematical Ideas}{../../../../CommonInformation/Lessons/mathematicalideas.png}
+\section*{Mathematical Ideas}
+
+This section uses Markov chains to analyze the stochastic progress of a
+battle between two players in the board game \emph{Risk}.  Standard
+Markov chain methods give the probabilities of victory and additionally
+the expected losses in battle.
+
+\subsection*{The Game of \emph{Risk}}
+
+The board game \emph{Risk} for two or more players has a world map
+separated into \( 42 \) territories.  Each player has a number of tokens
+used as armies.  Each token represents one army.  A player may use some
+or all but one of the armies to attack the armies in an adjacent
+opponent-controlled territory.  The goal of a player is either to
+conquer the world through battles or to fulfill a task assigned at the
+beginning of the game.  This task can be destroying a specific enemy or
+conquering a specific area.%
+\index{\emph{Risk}}
+
+The game consists of battles between two players, and each battle
+consists of one or more rounds of combat.  At each turn, a player must
+decide whether or not to attack a territory.  The first question is the
+following:  \emph{If a player attacks a territory with your armies, what
+is the probability the player will capture this territory?} Of course,
+the probability that a player will capture a territory could be high
+while the expected loss is also high.  Therefore, the second question
+is: \emph{If a player engages in a war, how many armies should the
+player expect to keep, depending on the number of armies the opponent
+has on that territory?}
+
+At each turn, a player occupying some region may attack a neighboring
+territory.  An attacker must leave at least one army on the occupied
+territory, and use at least one army in an attack.  Thus a player who
+has at least two armies (one to keep on the territory and one to attack
+a territory) may attack a neighbor territory.  A player who decides to
+attack a territory declares war on the opponent and the two players
+engage in a sequence of combats with random outcomes determined by dice.
+Outcomes of the defender's and the attacker's dice decide each battle
+and the ultimate outcome of the war.  An attacker may withdraw before
+the war ends.  An attacker who does not withdraw either destroys all the
+defender armies in that territory and occupies that territory, or loses
+all the attacking armies and fails to conquer the territory.
+
+The number of armies an attacker or a defender possesses at the start of
+a each combat determines the number of dice each player rolls.  To begin
+a round of battle, the attacker will roll one die if attacking with a
+single army, two dice if the attacker has two armies present, and three
+dice if the attacking player has three or more armies involved in the
+battle.  A defender rolls one die with one army and two dice with two or
+more armies in the embattled territory.  Six different cases result from
+the number of dice each opponent rolls, see Table~%
+\ref{tab:riskgame:riskdice}.
+
+\begin{table}
+    \centering
+    \begin{tabular}{ccccc}
+             & \multicolumn{2}{c}{Number of Armies} & \multicolumn{2}{c}{Number of Dice} \\ 
+        Case & Attacker & Defender & Attacker & Defender \\ 
+        1    & $1$      & $1$      & $1$      & $1$      \\ 
+        2    & $2$      & $1$      & $2$      & $1$      \\ 
+        3    & $ \ge 3$ & $1$      & $3$      & $1$      \\ 
+        4    & $1$      & $ \ge 2$ & $1$      & $2$      \\ 
+        5    & $2$      & $ \ge 2$ & $2$      & $2$      \\ 
+        6    & $ \ge 3$ & $ \ge 2$ & $3$      & $2$      \\ 
+    \end{tabular}
+    \caption{The number of dice each player rolls according to the
+    number of attacker and defender armies.}%
+    \label{tab:riskgame:riskdice}
+\end{table}
+
+At each turn, after rolling the dice, each player sets the dice in
+descending order and then pairs off the two sets of dice, matching the
+highest attacking die roll against the highest defending die roll.  If
+each player is using at least two dice, then the second highest die
+rolls are similarly matched.  The attacker loses one army for each die
+that is less than or equal to the corresponding defender's die.  The
+defender loses one army for each die that is strictly less than the
+corresponding attacker's die.  Note that ties favor the defender, so
+each tie results in the loss of an attacking army.  After taking away
+the armies lost at that turn, the players roll the dice again.  This
+sequence continues until one side loses all of its armies.  Table~%
+\ref{tab:riskgame:riskwar} shows the progress of a typical war for a
+country.  This war took four rounds.  At the end of the fourth turn, the
+attacker lost all of the attacking armies and the defender wins the war.
+This table also serves as a reminder of the number of dice rolled in
+various situations, never more than three for the attacker, and never
+more than two for the defender.
+\begin{table}
+    \centering
+    \begin{tabular}{ccccccccc}
+        Roll & \multicolumn{2}{c}{Armies} & \multicolumn{2}{c}{Dice Rolled} & \multicolumn{2}{c}{Dice Outcome} & \multicolumn{2}{c}{Losses} \\ 
+             & Att      & Def      & Att      & Def      & Att   & Def & Att & Def \\ 
+        1    & 4        & 3        & 3        & 2        & 5,4,3 & 6,3 & 1   & 1   \\ 
+        2    & 3        & 2        & 3        & 2        & 5,5,3 & 5,5 & 2   & 0   \\ 
+        3    & 1        & 2        & 1        & 2        & 6     & 4,3 & 0   & 1   \\ 
+        4    & 1        & 1        & 1        & 1        & 5     & 6   & 1   & 0   \\ 
+        5    & 0        & 1        &          &          &       &     &     &     \\ 
+    \end{tabular}
+    \caption{An example of a battle in \emph{Risk}}.%
+    \label{tab:riskgame:riskwar}
+\end{table}
+
+It may be disadvantageous to take control of a new territory by winning
+a war with only one army remaining, emphasizing the importance of the
+second question:  \emph{If a player engages in a war, how many armies
+should the player expect to lose depending on the number of armies the
+opponent has on that territory?}
+
+\subsection*{\emph{Risk} States}
+
+Let \( A \) be the number of attacking armies and \( D \) the number of
+defending armies.  The values of \( A \) and \( D \) characterize the
+state of the system at a given time.  Let \( X_n \) be the state of the
+system at the beginning of the \( n \)th turn:
+\[
+    X_n = (a_n, d_n), 0 \le a_n \le A, 0 \le d_n \le D
+\] where \( a_n \) and \( d_n \) are the number of attacking and
+defending armies respectively.  The initial state of the system is \( X_0
+= (A, D) \).  If one side loses all its armies then that side loses the
+war; i.e., if \( X_n= (0, d_n) \) with \( d_n > 0 \), then the attacker
+has lost the war at the end of the turn.  Similarly, if \( X_n= (a_n ,0)
+\), with \( a_n > 0 \), then the attacker has won the war at the end of
+the turn.  Given the number of armies each side has at a given round,
+then it is possible to calculate the probability that each side wins or
+loses the war without knowing the states of the system before that
+round.  In other words, the battle process has the Markov property.
+
+The \( AD \) states where both \( a \) and \( d \) are positive are
+transient.  The \( A + D \) states where either \( a = 0 \) or \( d = 0 \)
+are absorbing.  Order the \( AD + A + D \) possible states so that the \(
+AD \) transient states precede the \( A + D \) absorbing states. Order
+the transient states with the attacker armies decreasing along a row for
+constant defenders, and the defender armies decreasing row by row, see
+Figure~%
+\ref{fig:riskgame:risktrans}.  The transient states are, in order
+\begin{align*}
+    & (A, D), (A-1, D), (A-2, D), \dots, (1, D), \\
+        & (A, D-1), (A-1, D-1), \dots, (1, D-1), \\
+        & \dots \\
+        & (A, 1), (A-1, 1), \dots, (1,1)
+\end{align*}
+and order the absorbing states by decreasing desirability of outcome for
+the attacker, including the absorbing states where the defender wins
+\[
+    (A, 0), (A-1, 0),\dots, (1, 0), (0, 1), (0, 2),\dots, (0, D).
+\] Note that this order is the reverse of the state order in
+\cite{osborne03}.  The order here proceeds in the general direction of
+the battle, with the first state for the initial numbers of armies, then
+decreasing number of armies for both players.  See Figure~%
+\ref{fig:riskgame:risktrans} for a diagram of the possible state
+transitions when \( A = 5 \) and \( D = 4 \).  This figure is key for
+understanding the Markov chain.  The small number below each ordered
+pair state is the index of the state for the transition probability
+matrix.  The state indices increase from left to right and top to
+bottom, so the state of the system flows from the upper left corner to
+the bottom or right margin.  The diagram divides into \( 6 \) regions, \(
+3 \) for the attacker, and \( 2 \) for the defender depending on the
+number of dice each is rolling in a battle, as already outlined in
+Table~%
+\ref{tab:riskgame:riskdice}.  For example, the lower right region
+corresponds to Case 1 in Table~%
+\ref{tab:riskgame:riskdice} and the transition probabilities \( \rho_{111}
+\) and \( \rho_{110} \) detailed below in Table~%
+\ref{tab:riskgame:risktransprobs}.  The largest region in the upper left
+corresponds to Case 6 in Table~%
+\ref{tab:riskgame:riskdice} and the transition probabilities \( \rho_{32\ell}
+\) in Table~%
+\ref{tab:riskgame:risktransprobs}.  Likewise for the other regions.
+Figure~%
+\ref{fig:riskgame:risktrans} labels the possible state transitions with
+arrows and colors corresponding to the transition probabilities in
+Table~%
+\ref{tab:riskgame:risktransprobs}.
+
+The states and the coordinates of states on the diagram can be
+confusing.  For instance, the initial armies state \( (5,4) \) is at
+location \( (x=1, y=4) \) on the diagram.  As the attacking armies
+decrease, the first coordinate of the location of the state increases.
+As the defending armies decrease, the second coordinate of the location
+decreases.  This means first that writing computer code for the chart
+requires close attention to indices and second to not confuse location
+with state.
+
+\begin{figure}
+    \centering
+\begin{asy}
+settings.outformat = "pdf";
+
+// import graph;
+
+size(5inches);
+
+real myfontsize = 12;
+real mylineskip = 1.2*myfontsize;
+pen mypen = fontsize(myfontsize, mylineskip);
+defaultpen(mypen);
+
+draw( (-1, 1.5)--(6.5, 1.5), dashed);
+label( "Defender dice:", (-0.5, 4));
+label( "Two", (-0.5, 1.5), N);
+label( "One", (-0.5, 1.5), S);
+
+draw( (3.5, -0.75)--(3.5, 4.5), dashed);
+draw( (4.5, -0.75)--(4.5, 4.5), dashed);
+label( "Attacker dice:", (1.0, -0.5));
+label( "One", (4.5, -0.5), E);
+label( "Two", (4.0, -0.5));
+label( "Three", (3.5, -0.5), W);
+
+int index = 0;
+for (int j=4; j > 0; --j) {	// top to bottom
+  for (int i=1; i <= 5; ++i) {	// left to right
+    label("("+format("%d", 6-i)+","+format("%d", j)+")", (i,j) );
+    label(scale(0.5)*format("%d", ++index), (i-0.2, j-0.2));
+  }
+}
+for (int i=1; i <= 5; ++i) {
+  label("("+format("%d", 6-i)+",0)", (i,0) );
+    label(scale(0.5)*format("%d", ++index), (i-0.2, 0-0.2));
+}
+for (int j=1; j <= 4; ++j) {
+  label("(0,"+format("%d", j)+")", (6,j) );
+    label(scale(0.5)*format("%d", ++index), (6-0.2, j-0.2));
+}
+
+real eps = 0.2;
+
+for (int j=2; j <= 4; ++j) {
+  for (int i=1; i <= 3; ++i) {
+    draw(((i,j)+ eps*SE)--((i+1, j-1)+eps*NW), blue, Arrow);
+    draw(( (i,j)+ eps*SW){SSW}..((i, j-2)+eps*NW){SSE}, green, Arrow);
+    draw(( (i,j)+ eps*NE){ENE}..((i+2, j)+eps*NW){ESE}, red, Arrow);
+  }
+}
+
+for (int j=2; j <= 4; ++j) {
+  draw(((4,j)+ eps*NE){ENE}..((6, j)+eps*NW){ESE}, cyan, Arrow);
+  draw(((4,j)+ eps*SW){SSW}..((4, j-2)+eps*NW){SSE}, yellow, Arrow);
+  draw(((4,j)+ eps*SE)--((5, j-1)+eps*NW), darkgreen, Arrow);
+  draw(((5,j)+ eps*S)--((5, j-1)+eps*N), brown, Arrow);
+  draw(((5,j)+ 1.5*eps*E)--((6, j)+ 1.5*eps*W){SSE}, purple, Arrow);
+}
+
+for (int i=1; i <= 3; ++i) {
+  draw(((i,1)+ 1.5*eps*E)--((i+1, 1)+ 1.5*eps*W), gray, Arrow);
+  draw(((i,1)+ eps*S)--((i, 0)+eps*N), orange, Arrow);
+}
+
+draw(((4,1)+ 1.5*eps*S)--((4, 0)+ 1.5*eps*N), pink, Arrow);
+draw(((5,1)+ eps*S)--((5, 0)+eps*N), lightgray, Arrow);
+
+draw(((4,1)+ 1.5*eps*E)--((5, 1) + 1.5*eps*W), black, Arrow);
+draw(((5,1)+ 1.5*eps*E)--((6, 1) + 1.5*eps*W), magenta, Arrow);
+\end{asy}
+    \caption{The state space and transitions of the Markov chain for a
+    war in \emph{Risk}.  Transitions of the same color have the same
+    probability.}%
+    \label{fig:riskgame:risktrans}
+\end{figure}
+
+\subsection*{Transition Probabilities}
+
+Under this ordering, the transition probability matrix takes the
+block-matrix form
+\[
+    P =
+    \begin{pmatrix}
+        Q       & R \\
+        0       & I
+    \end{pmatrix}
+\] where the \( (AD) \times (AD) \) matrix \( Q \) has the probabilities
+of going from one transient state to another, and the \( (AD) \times (A
++ D) \) matrix \( R \) has the probabilities of going from a transient
+state into an absorbing state.  \( P \) contains only \( 14 \) distinct
+probability values, based on the number of dice rolled and the armies
+lost as a result.  Let \( \rho_{i j \ell} \) denote the probability that
+the defender loses \( \ell \) armies when rolling \( j \) dice against
+an attacker rolling \( i \) dice, as given in Table~%
+\ref{tab:riskgame:risktransprobs}.  To calculate the \( \rho_{i j \ell} \),
+find the joint probabilities associated with the best and second best
+roll from \( 2 \) or \( 3 \) six-sided fair dice.  Let \( Y_1 \), \( Y_2
+\), \( Y_3 \) denote the unordered outcome for an attacker when rolling
+three dice and let \( W_1 \), \( W_2 \) denote the unordered outcome for
+an attacker when rolling two dice.  Let \( Z_1 \), \( Z_2 \) denote the
+unordered outcome for a defender rolling two dice.  Then \( Y_1 \), \( Y_2
+\), \( Y_3 \), \( W_1 \), \( W_2 \) and \( Z_1 \), \( Z_2 \) are random
+samples from the discrete uniform distribution on the integers \( 1 \)
+through \( 6 \).  For example,
+\[
+    \Prob{Y_j = y} =
+    \begin{cases}
+        \frac{1}{6}     & y = 1,2,3,4,5,6 \\
+        0       & \text{else}.
+    \end{cases}
+\]
+
+Given a sample of \( n \) identically distributed random values, the \(
+\ell \)th \defn{order statistic} is the \( \ell \)th largest value.%
+\index{order statistics}
+Using superscripts, the ordered random variables \( Y^{(1)} \ge Y^{(2)}
+\ge Y^{(3)} \) are the \emph{order statistics} for the dice roll.  The
+joint distributions of the order statistics for specification of \( \rho_
+{i j \ell} \) use straightforward techniques of enumeration.  When
+rolling two dice, the joint distribution of \( (Z^{(1)} , Z^{(2)}) \) is
+\[
+    \Prob{Z^{(1)} = z^{(1)}, Z^{(2)} = z^{(2)}} =
+    \begin{cases}
+        \frac{1}{36}    & z^{(1)} = z^{(2)}\\
+        \frac{2}{36}    & z^{(1)} > z^{(2)}\\
+        0       & \text{else}.
+    \end{cases}
+\] See Figure~%
+\ref{fig:riskgame:ordertwo} for a visualization of how to obtain this
+probability for \( Z^{(1)} = 5, Z^{(2)} = 3 \).
+\begin{figure}
+    \centering
+\begin{asy}
+      settings.outformat = "pdf";
+
+      import math;
+      size(2.5inches,0,IgnoreAspect);
+
+      real myfontsize = 12;
+      real mylineskip = 1.2*myfontsize;
+      pen mypen = fontsize(myfontsize, mylineskip);
+      defaultpen(mypen);
+
+      void tableprobs(int m=6, int n=6){
+          string[][] y= new string[m+1][n+1];
+          for (int i=1; i<=m; ++i)
+          {
+              for (int j=1; j<=n; ++j)
+              {
+                y[i][j]="$\frac{1}{36}$";
+                if (i==5 && j==3) {
+                  label(y[i][j],(j,-i), red);
+                } else {
+                  if (i==3 && j==5) {
+                  label(y[i][j],(j,-i), red);
+                  } else {
+                if(i==1) label(format("%i",j),(j,0),blue);
+                }
+              }
+              label(format("%i",i),(0,-i),blue);
+          }
+          add(shift(-.5,-.5-m)*grid(n+1,m+1,blue));
+        }
+      }
+
+      tableprobs();
+
+      shipout(bbox(.25cm,Fill(white)));
+\end{asy}
+    \caption{Visualization of \( Z^{(1)} = 5 \), \( Z^{(2)} = 3 \).}%
+    \label{fig:riskgame:ordertwo}
+\end{figure}
+The \emph{marginal distribution} of the best roll \( Z^{(1)} \) sums the
+joint distribution over values of \( z^{(2)} \):
+\[
+    \Prob{Z^{(1)} = z^{(1)}} = \frac{2z^{(1)} - 1}{36}
+\] for \( z^{(1)} = 1,2,3,4,5,6 \).  See Figure~%
+\ref{fig:riskgame:orderone} for a visualization of how to obtain this
+probability for \( Z^{(1)} = 5 \).
+\begin{figure}
+    \centering
+\begin{asy}
+    settings.outformat = "pdf";
+
+    import math;
+    size(2.5inches,0,IgnoreAspect);
+
+    real myfontsize = 12;
+    real mylineskip = 1.2*myfontsize;
+    pen mypen = fontsize(myfontsize, mylineskip);
+    defaultpen(mypen);
+
+    void tableprobs(int m=6, int n=6){
+      string[][] y= new string[m+1][n+1];
+      for (int i=1; i<=m; ++i) {
+        for (int j=1; j<=n; ++j) {
+          y[i][j]="\(\frac{1}{36} \)";
+          if (i==5 || j==5) {
+            label(y[i][j],(j,-i), red);
+        }
+        else {
+          label(y[i][j],(j,-i), black);
+        }
+        if(i==1) label(format("%i",j),(j,0),blue);
+      } label(format("%i",i),(0,-i),blue);
+    }
+    add(shift(-.5,-.5-m)*grid(n+1,m+1,blue)); }
+
+    tableprobs();
+
+    shipout(bbox(.25cm,Fill(white)));
+\end{asy}
+    \caption{Visualization of \( Z^{(1)} = 5 \).}%
+    \label{fig:riskgame:orderone}
+\end{figure}
+When rolling three dice, the distribution of the best two rolls is
+\[
+    \Prob{Y^{(1)} = y^{(1)}, Y^{(2)} = y^{(2)}} =
+    \begin{cases}
+        \frac{3y^{(1)} - 2}{216}        & y^{(1)} = y^{(2)}\\
+        \frac{6y^{(2)}-3}{36}   & y^{(1)} > y^{(2)}\\
+        0       & \text{else}.
+    \end{cases}
+\] See Figure~%
+\ref{fig:riskgame:threeordertwo} for a visualization of how to obtain
+this probability for \( Y^{(1)} = 3 \), \( Y^{(2)} = 3 \).  See the
+exercises for the derivation of the entry for \( Y^{(1)} = y^{(1)} \), \(
+Y^{(2)} = y^{(2)} \) with \( y^{(1)} > y^{(2)} \).
+\begin{figure}
+    \centering
+\begin{asy}
+    settings.outformat="pdf";
+    settings.prc=false;
+    settings.render=0;
+
+    import grid3; 
+    size3(150,IgnoreAspect);
+
+    real myfontsize = 12;
+    real mylineskip = 1.2*myfontsize;
+    pen mypen = fontsize(myfontsize, mylineskip);
+    defaultpen(mypen);
+
+
+    limits((0,0,0),(6,6,6));
+    currentprojection=perspective(camera=(20,16,7),target=(5,5,3));
+
+    draw(box((2,2,0),(3,3,3)),red);
+    draw(box((2,0,2),(3,3,3)),red);
+    draw(box((0,2,2),(3,3,3)),red);
+
+    grid3(XYZgrid,Step=1);
+
+    xaxis3(Label("$y^{(1)}$",MidPoint,align=Y-Z),
+           Bounds(Both,Min),OutTicks(beginlabel=false),p=blue); 
+    yaxis3(Label("$y^{(2)}$",MidPoint,align=X-Z),
+           Bounds(Both,Min),OutTicks(beginlabel=false),p=blue); 
+    zaxis3(Label("$y^{(3)}$",MidPoint,align=X-Y),
+           Bounds(Both,Min),InTicks(beginlabel=false),p=1bp+blue);
+\end{asy}
+    \caption{Visualization of \( Y^{(1)} = 3, Y^{(2)} = 3 \).}%
+    \label{fig:riskgame:threeordertwo}
+\end{figure}
+The marginal distribution of the best roll is
+\[
+    \Prob{Y^{(1)} = y^{(1)}} = \frac{1 - 3y^{(1)} + 3 \left( y^{(1)}
+    \right)^2}{216}
+\] for \( y^{(1)} = 1,2,3,4,5,6 \).  All of the probabilities are \( 0 \)
+for arguments that are not positive integers less than or equal to \( 6 \).
+The joint distribution of \( W^{(1)} \) and \( W^{(2)} \) is the same as
+that for \( Z^{(1)} \) and \( Z^{(2)} \).
+
+Now it is possible to calculate specific transition probabilities using
+these marginal distributions.  For example
+\begin{align*}
+    \rho_{322}  &= \Prob{Y^{(1)} > Z^{(1)}, Y^{(2)} > Z^{(2)}} \\
+        &= \sum\limits_{z_1=1}^5 \sum\limits_{z_2=1}^{z_1} \Prob{Y^{(1)}
+    > z_1, Y^{(2)} > z_2} \Prob{Z^{(1)} = z_1, Z^{(2)} = z_2} \\
+        &= \sum\limits_{z_1=1}^5 \sum\limits_{z_2=1}^{z_1} \sum\limits_{y_1
+    = z_1+1}^6 \sum\limits_{y_2 = z_2+1}^{y_1} \Prob{Y^{(1)} = y_1, Y^{(2)}
+    = y_2} \Prob{Z^{(1)} = z_1, Z^{(2)} = z_2} \\
+        &= \frac{2890}{7776} \\
+        &\approx 0.372
+\end{align*}
+Note that those events in this quadruple sum for which an argument with
+a subscript of 2 exceeds an argument with the same letter and subscript
+1 have probability zero.
+
+Obtain the probabilities \( \rho \) of the transition probability matrix
+\( P \) similarly using the joint distributions for \( Y^{(1)} \), \( Y^
+{(2)} \), for \( Z^{(1)} \), \( Z^{(2)} \), and for \( W^{(1)} \), \( W^
+{(2)} \).  The exact probabilities, rounded to \( 3 \) decimal places,
+are in Table~%
+\ref{tab:riskgame:risktransprobs}.  The colors refer to the colors of
+the arrows representing transitions in Figure~%
+\ref{fig:riskgame:risktrans}.
+
+\begin{table}
+    \centering
+    \begin{tabular}{cclcrrl}
+        Att    & Def      & Outcome     & Symbol       & Exact       & Approx. & Color      \\ 
+        Dice   & Dice     &             &              & Prob.       & Prob.   &            \\ 
+        \hline
+        1      & 1        & Def loses 1 & $\rho_{111}$ & $15/36$     & $0.417$ & light gray \\ % checked
+         
+        1      & 1        & Att loses 1 & $\rho_{110}$ & $21/36$     & $0.583$ & magenta    \\ % checked
+         
+        \hline
+        1      & 2        & Def loses 1 & $\rho_{121}$ & $55/216$    & $0.255$ & brown      \\ % checked   
+         
+        1      & 2        & Att loses 1 & $\rho_{120}$ & $161/216$   & $0.745$ & purple     \\ % checked
+         
+        \hline
+        2      & 1        & Def loses 1 & $\rho_{211}$ & $125/216$   & $0.579$ & pink       \\ % checked
+         
+        2      & 1        & Att loses 1 & $\rho_{210}$ & $91/216$    & $0.421$ & black      \\ % checked
+         
+        \hline
+        2      & 2        & Def loses 2 & $\rho_{222}$ & $295/1296$  & $0.228$  & cyan       \\ % checked
+         
+        2      & 2        & Each lose 1 & $\rho_{221}$ & $420/1296$  & $0.324$ & darkgreen  \\ 
+        2      & 2        & Att loses 2 & $\rho_{220}$ & $581/1296$  & $0.448$ & yellow     \\ %checked
+         
+        \hline
+        3      & 1        & Def loses 1 & $\rho_{311}$ & $855/1296$  & $0.660$ & orange     \\ % checked
+         
+        3      & 1        & Att loses 1 & $\rho_{310}$ & $441/1296$  & $0.340$ & gray       \\ % checked
+         
+        \hline
+        3      & 2        & Def loses 2 & $\rho_{322}$ & $2890/7776$ & $0.372$ & green      \\ % checked
+         
+        3      & 2        & Each lose 1 & $\rho_{321}$ & $2611/7776$ & $0.336$ & blue       \\ 
+        3      & 2        & Att loses 2 & $\rho_{320}$ & $2275/7776$ & $0.293$ & red        \\ % checked
+         
+    \end{tabular}
+    \caption{Probabilities in the transition probability matrix.  The
+    colors correspond to the arrows in the diagram of state transitions.}
+    \label{tab:riskgame:risktransprobs}
+\end{table}
+
+\subsection*{Absorption Probabilities}
+
+Given any initial state, the system will eventually make a transition to
+an absorbing state.  For a transient state \( i \), call \( f_{ij}^{(n)}
+\) the probability that the first (and final) visit to absorbing state \(
+j \) occurs on the \( n \)th turn:
+\[
+    f_{ij}^{(n)} = \Prob{X_n = j, X_k \ne j \text{ for } k=1,2,\dots,
+    n-1 \given X_0 = i}.
+\] Denote the \( AD \times (A + D) \) matrix of these first transition
+probabilities by \( F^{(n)} \).  Then \( F^{(n)} = Q^{n-1}R \).  The
+probability that the system eventually goes from transient state \( i \)
+to absorbing state \( j \) is \( F = (I - Q)^{-1} R \).~%
+\index{fundamental matrix}
+If the system ends in one of the \( A \) absorbing states then the
+attacker wins; if it ends in one of the \( D \) absorbing states, the
+defender wins.  Since the initial state of a battle is the first state
+using the order established previously, the probability that the
+attacker wins is just the sum of the entries in the first row of the
+submatrix of the first \( A \) columns of \( F \):
+\[
+    \Prob{\text{Attacker wins} \given X_0 = (A,D)} = \sum\limits_{j=1}^{A}
+    f_{1, j}
+\] and
+\[
+    \Prob{\text{Defender wins} \given X_0 = (A,D)} = \sum\limits_{j=A+1}^
+    {A+D} f_{1, j}.
+\]
+
+\begin{small}
+    \begin{table}
+        \centering
+        \begin{tabular}{lrrrrrrrrrr}
+            Att    & 10       & 9           & 8            & 7           & 6       & 5          & 4     & 3     & 2     & 1     \\ 
+            Def    &          &             &              &             &         &            &       &       &       &       \\ 
+            10     & 0.568    & 0.480       & 0.380        & 0.287       & 0.193   & 0.118      & 0.057 & 0.021 & 0.001 & 0.000 \\ 
+            9      & 0.650    & 0.558       & 0.464        & 0.357       & 0.258   & 0.162      & 0.086 & 0.033 & 0.003 & 0.000 \\ 
+            8      & 0.724    & 0.646       & 0.547        & 0.446       & 0.329   & 0.224      & 0.123 & 0.054 & 0.005 & 0.000 \\ 
+            7      & 0.800    & 0.726       & 0.643        & 0.536       & 0.423   & 0.297      & 0.181 & 0.084 & 0.011 & 0.000 \\ 
+            6      & 0.861    & 0.808       & 0.730        & 0.640       & 0.521   & 0.397      & 0.253 & 0.134 & 0.021 & 0.000 \\ 
+            5      & 0.916    & 0.873       & 0.818        & 0.736       & 0.638   & 0.506      & 0.359 & 0.206 & 0.049 & 0.002 \\ 
+            4      & 0.954    & 0.930       & 0.888        & 0.834       & 0.745   & 0.638      & 0.477 & 0.315 & 0.091 & 0.007 \\ 
+            3      & 0.981    & 0.967       & 0.947        & 0.910       & 0.857   & 0.769      & 0.642 & 0.470 & 0.206 & 0.027 \\ 
+            2      & 0.994    & 0.990       & 0.980        & 0.967       & 0.934   & 0.890      & 0.785 & 0.656 & 0.363 & 0.106 \\ 
+            1      & 1.000    & 1.000       & 1.000        & 0.999       & 0.997   & 0.990      & 0.972 & 0.916 & 0.754 & 0.417 \\ 
+        \end{tabular}
+        \caption{Probability that the attacker wins with \( A \) armies
+        against \( D \) defending armies.}%
+        \label{tab:riskgame:attackerwins}
+    \end{table}
+\end{small}
+
+Because the state order here is the reverse of the order given in
+\cite{osborne03}, the table of winning probabilities here is the reverse
+of Table 3 in that paper.  Note also by the Markov property, by
+calculating the winning probability for say \( A = 10 \) and \( D=10 \),
+the winning probability for any war starting with \( A < 10 \) and \( D
+< 10 \) is also automatically calculated so that the entire Table~%
+\ref{tab:riskgame:attackerwins} comes from \( N = (I-Q)^{-1} \) for \( A
+= 10 \) and \( D = 10 \).
+
+Large engagements occur towards the end of an entire game of \emph{Risk}.
+The absorbing probabilities for large battles have an interesting
+``saw-tooth'' feature noticed in
+\cite{pierce15}.  Figure~%
+\ref{fig:riskgame:finalstateprob} shows the probability mass function
+when the attacker and defender each start with \( 40 \) armies.  The
+horizontal axis shows all the absorbing states of a \( (40,40) \) battle
+and the vertical axis is the probability of the corresponding absorbing
+state.  The outcome states along the horizontal axis are in decreasing
+order of preference of the attacker.  One distinctive feature of this
+probability mass function is the local mimimum at \( 40 \) in the
+probability masses. The outcomes \( (1,0) \) and \( (0,1) \) are less
+likely than their neighbors \( (2,0) \) and \( (0,2) \).  The outcomes \(
+(2,0) \) and \( (0,2) \) can occur when a player with a single army will
+roll only one die against two dice and is less likely to survive.  Also
+interesting is the jagged or ``saw-tooth'' phenomenon near the local
+maxima.  A final outcome of \( (8,0) \) or \( (6,0) \) is each more
+likely than an outcome of \( (7,0) \).  In the largest part of the
+transient states the probability of removing \emph{two} armies from one
+player is about double the probability of each player losing \emph{one}
+army.  So a path that begins at \( (40,40) \) is more likely to visit
+only states \( (a,d) \) in which \( a \) and \( d \) have the same
+parity, except when one player keeps just one army.
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.33]{finalStateProb}
+    \caption{The probability mass function of absorbing states for \( A
+    = 40 \), \( D = 40 \).  The absorbing states are in decreasing order
+    of preference for the attacker.}%
+    \label{fig:riskgame:finalstateprob}
+\end{figure}
+
+\subsection*{Expected Losses}
+
+Using the matrix \( NR \) allows calculation of the expected values and
+variances for the losses that the attacker and defender will suffer in a
+battle.  For example, suppose \( A = 5 \) and \( D = 4 \), as
+illustrated in Figure~%
+\ref{fig:riskgame:risktrans}.  In this case, the first row of the \( 20
+\times 9 \) matrix \( NR \) gives the probabilities for the \( A + D = 9
+\) absorbing states:  \( (NR)_{1,\cdot} = 0.138, 0.165, 0.179, 0.107,
+0.050, 0.070, 0.124, 0.104, 0.064 \).  Let \( R_A \) and \( R_D \)
+denote the number of armies remaining for the attacker and defender
+respectively given the initial state \( X_0 = (A, D) \).  The
+probability distributions for \( R_A \) and \( R_D \) are in the first
+row of \( NR \):
+\[
+    \Prob{R_A = k} =
+    \begin{cases}
+        \sum\limits_{\nu=A+1}^{A+D} (NR)_{1,\nu}        & k = 0, \\
+        (NR)_{1,A+1-k}  & k = 1, 2, \dots A
+    \end{cases}
+\] and
+\[
+    \Prob{R_D = k} =
+    \begin{cases}
+        \sum\limits_{\nu=1}^{A} (NR)_{1,\nu}    & k=0, \\
+        (NR)_{1,k}      & k = A+1, A+2, \dots A+D.
+    \end{cases}
+\] For \( A = 5 \) and \( D = 4 \) the mean and standard deviation for
+the attacker's remaining armies are \( \E{R_A} = 2.15 \) and \( \sqrt{\Var
+{R_A}} = 1.89 \).  The defender's mean and standard deviation in this
+case are \( \E{R_D} = 0.886 \) and \( \sqrt{\Var{R_D}} = 1.32 \).  The
+attacker has an advantage in the sense that expected losses, \( 2.85 \),
+are lower than for the defender, \( 3.1 \).  This is generally rue
+provided the initial number of attacking armies is not too small.
+
+To get an overall sense of expected remaining armies, Figure~%
+\ref{fig:riskgame:expectedrem} has heatplots of expected losses for
+values of \( A \) and \( D \) between \( 1 \) and \( 20 \).  A heatmap
+is a graphical representation of data where the individual values
+contained in a matrix are represented as colors.  Here the lighter
+colors represent larger numbers of armies remaining, the darker colors
+smaller number numers of armies.  The matrix is the number of armies
+remaining after a battle between a number of attackers along a column
+and defenders along a row.  The scripts below calculate the expected
+number of armies remaining for the numerical values.
+\begin{figure}
+    \centering
+    \begin{minipage}[b]
+        {0.40\linewidth} \includegraphics[scale=0.30]{attackersRemain.png}
+    \end{minipage}
+    \begin{minipage}[b]
+        {0.40\linewidth} \includegraphics[scale=0.30]{defendersRemain.png}
+    \end{minipage}
+    \caption{Expected losses for values of \( A \) on the left and \( D \)
+    on the right.  Lighter colors represent larger numbers of armies
+    remaining, the darker colors smaller number numers of armies.  Note
+    the axis scales, the number of attackers decrease left to right, the
+    number of defenders decrease top to bottom, as in Figure~%
+    \ref{fig:riskgame:risktrans}}~%
+    \label{fig:riskgame:expectedrem}
+\end{figure}
+
+When the number of attacking and defending armies is equal, the
+probability that the attacker ends up winning the territory exceeds \(
+50\% \), provided the initial stakes are high enough, at least \( 5 \)
+armies each, initially, see Table~%
+\ref{tab:riskgame:equalwins}, With \( 40 \) armies attacking \( 40 \)
+defending armies, the expected armies remaining are \( 7.5 \) attacking
+armies and \( 2.1 \) defending armies.  The overall conclusion is that
+the chances of winning a battle are more favorable for the attacker.
+The logical recommendation is for the attacker to be aggressive.
+
+\begin{table}
+    \centering
+    \begin{tabular}{rrrrrrrrrr}
+        20     & 19       & 18          & 17           & 16          & 15      & 14         & 13    & 12    & 11    \\ 
+        0.633  & 0.628    & 0.623       & 0.617        & 0.611       & 0.605   & 0.599      & 0.592 & 0.584 & 0.576 \\ 
+        10     & 9        & 8           & 7            & 6           & 5       & 4          & 3     & 2     & 1     \\ 
+        0.568  & 0.558    & 0.547       & 0.536        & 0.521       & 0.506   & 0.477      & 0.470 & 0.363 & 0.417
+    \end{tabular}
+    \caption{Probability of attacker winning when the number of armies
+    are equal.}%
+    \label{tab:riskgame:equalwins}
+\end{table}
+
+Using the absorption probabilities for the states \( (a, 0) \) where the
+attacker wins allows a more detailed summary of the outcomes of the war.
+As an example, suppose the attacker wants at least a probability of \(
+0.75 \) of winning the war with at least four armies surviving.  With
+how many armies should the attacker start a war to create this favorable
+situation?  Refer to Figure~%
+\ref{fig:riskgame:quartiles} for an example of how to answer this
+important strategic question.  Each facet in the figure indicates the
+number of defending armies from \( 1 \) to \( 4 \).  The horizontal axis
+in each facet lists the number of starting attacking armies, while the
+vertical axis in each facet displays how many attacking armies remain
+after the battle.  Respectively, the blue, green and red curves with
+points indicate the first-quartile, median, and third-quartile states in
+the distribution of outcomes based on the number of the attacker's
+starting armies.  The outcomes are in descending order of preference for
+the attacker.  For example, consider the lower right facet corresponding
+to the defender starting with \( 4 \) armies.  If the attacker has seven
+armies, the most desired outcome is the absorbing state \( (7,0) \),
+while the least desired is \( (0,4) \).  In this case, the median
+outcome is \( (4,0) \) in the sense that \( (a,0) \) with \( a \ge 4 \)
+has a probability of at least \( 0.50 \) (in fact, \( \Prob{a \ge 4, d =
+0} = 0.622 \).) This means that with probability at least \( 0.50 \),
+the attacker will finish the war with \( 4 \) or more armies.  The
+interquartile range is \( (6,0) \) through \( (2,0) \).  This means that
+with probability at least \( 0.25 \) (precisely, the probability is \(
+0.303 \)) the attacker will win the war and have \( 6 \) or more armies
+remaining; with probability at least \( 0.50 \) (precisely, the
+probability is \( 0.503 \)) the attacker will win and have \( 2 \) to \(
+6 \) armies remaining; and the remaining \( 0.25 \) probability (precisely,
+the probability is \( 0.195 \)) of battles will leave the attacker with \(
+2 \) or fewer armies.  Returning to the question of how many armies the
+player needs to start with to attack a defender with \( 4 \) armies with
+at least a probability of \( 0.75 \) of winning with at least four
+armies remaining, the attacker should start with at least \( 9 \)
+armies.  In this case, the interquartile range is \( (8,0) \) through \(
+(4,0) \) and the median outcome is \( (6,0) \).  The figure and the
+prior examples are illustrative, using up to \( 10 \) attacking armies
+and \( 4 \) defending armies.  The R script below shows how to calculate
+these quartiles for any number of attackers and defenders.
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.75]{risk_quartiles}
+    \caption{Quartile statistics for the number of attacking armies
+    remaining in various scenarios.}%
+    \label{fig:riskgame:quartiles}
+\end{figure}
+
+The number of battles fought in a war is the number of dice rolls until
+absorption into one of the states \( (a,0) \) or \( (0,d) \).  This is
+the number of state transitions to absorption, also called the waiting
+time until absorption.  The standard formula for calculating the
+expected waiting time to absorption is \( (I-Q)^{-1} \mathbf{1} \).
+Using this, the expected number of battles for a war with \( 10 \)
+attacking armies against \( 4 \) defending armies is \( 3.994 \).  The R
+script below shows how to calculate the expected waiting time to
+absorption for any number of attackers and defenders.
+
+\visual{Section Starter Question}{../../../../CommonInformation/Lessons/question_mark.png}
+\section*{Section Ending Answer}
+
+The order statistics are \( Y^{(3)} \), the largest value among \( Y_1,
+Y_2, Y_3 \), \( Y^{(2)} \), the second largest value, including ties,
+among \( Y_1, Y_2, Y_3 \), and \( Y^{(1)} \), the largest value,
+including ties, among \( Y_1, Y_2, Y_3 \).
+
+\subsection*{Sources} This section on \emph{Risk} is adapted from
+\cite{osborne03},
+\cite{pierce15} and
+\cite{tan97}.
+
+\hr
+
+\visual{Algorithms, Scripts, Simulations}{../../../../CommonInformation/Lessons/computer.png}
+\section*{Algorithms, Scripts, Simulations}
+
+\subsection*{Algorithm}
+
+\subsection*{Scripts}
+
+%% \input{ _scripts}
+
+\hr
+
+\visual{Problems to Work}{../../../../CommonInformation/Lessons/solveproblems.png}
+\section*{Problems to Work for Understanding}
+\renewcommand{\theexerciseseries}{}
+\renewcommand{\theexercise}{\arabic{exercise}}
+
+\begin{exercise}
+    Given the values \( Y_1 \), \( Y_2 \), \( Y_3 \) from a roll of \( 3
+    \) dice, show that the probability for \( Y^{(1)} = y^{(1)} \), \( Y^
+    {(2)} = y^{(2)} \) with \( y^{(1)} > y^{(2)} \) is \( \frac{6y^2 - 3}
+    {216} \).
+\end{exercise}
+\begin{solution}
+    For \( Y^{(1)} = y^{(1)} \), \( Y^{(2)} = y^{(2)} \) with \( y^{(1)}
+    > y^{(2)} \), the dice rolls must be \( y^{(1)} \), \( y^{(2)} \)
+    and \( y^{(3)} \le y^{(2)} \) \emph{in some order}.  There are \( 6 \)
+    orders for each of the \( y^{(2)} \) possibilities for \( y^{(3)} \),
+    each with probability \( \frac{1}{6^3} \).  However, if \( y^{(3)} =
+    y^{(2)} \), then the \( 6 \) orders are counted twice, so half of
+    them, specifically \( 3 \) must be subtracted.
+\end{solution}
+
+\begin{exercise}
+    For the game of \emph{Risk}, show that the probability of the
+    attacker rolling three dice, the defender rolling one die and the
+    defender losing one army is \( 855/1296 \).  That is, calculate \(
+    wxMaxim \rho_{310} \), the gray arrow in Figure~%
+    \ref{fig:riskgame:risktrans} and Table~%
+    \ref{tab:riskgame:risktransprobs}.
+\end{exercise}
+\begin{solution}
+    Use the order statistic probability \( Y^{(1)} = (3y^2 - 3 y + 1)/216
+    \).  The possibilities for the defender to lose one army are the
+    following:
+    \begin{enumerate}[label=(\alph*)]
+    \item
+        The largest die of the \( 3 \) rolled by the attacker is a \( 2 \),
+        and the value rolled by the defender is \( 1 \); occurring with
+        probability \( \frac{7}{216} \cdot \frac{1}{6} = \frac{7}{1296} \).
+    \item
+        The largest die of the \( 3 \) rolled by the attacker is a \( 3 \),
+        and the value rolled by the defender is \( 1 \) or \( 2 \);
+        occurring with probability \( \frac{19}{216} \cdot \frac{2}{6} =
+        \frac{38}{1296} \).
+    \item
+        The largest die of the \( 3 \) rolled by the attacker is a \( 4 \),
+        and the value rolled by the defender is \( 1 \) or \( 2 \) or \(
+        3 \); occurring with probability \( \frac{37}{216} \cdot \frac{3}
+        {6} = \frac{111}{1296} \).
+    \item
+        The largest die of the \( 3 \) rolled by the attacker is a \( 5 \),
+        and the value rolled by the defender is \( 1 \), \( 2 \), \( 3 \),
+        or \( 4 \); occurring with probability \( \frac{61}{216} \cdot
+        \frac{4}{6} = \frac{244}{1296} \).
+    \item
+        The largest die of the \( 3 \) rolled by the attacker is a \( 6 \),
+        and the value rolled by the defender is \( 1 \), \( 2 \), \( 3 \),
+        \( 4 \), or \( 5 \); occurring with probability \( \frac{91}{216}
+        \cdot \frac{5} {6} = \frac{455}{1296} \).
+    \item
+        The total probability is \( (7 + 38 + 111 + 244 + 455)/1296 =
+        855/1296 \).
+\end{enumerate}
+\end{solution}
+
+\begin{exercise}
+    Find the expected number of attacking armies remaining when
+    attacking an equal number of defending armies, for \( n = 20 \) to \(
+    n = 1 \).
+\end{exercise}
+\begin{solution}
+
+    \begin{tabular}{rrrrr}
+        20     & 19       & 18          & 17           & 16          \\ 
+        4.441  & 4.277    & 4.111       & 3.943        & 3.773       \\ 
+        15     & 14       & 13          & 12           & 11          \\ 
+        3.601  & 3.427    & 3.249       & 3.068        & 2.883       \\ 
+        10     & 9        & 8           & 7            & 6           \\ 
+        2.692  & 2.498    & 2.293       & 2.085        & 1.854       \\ 
+        5      & 4        & 3           & 2            & 1           \\ 
+        1.631  & 1.335    & 1.110       & 0.590        & 0.417
+    \end{tabular}
+\end{solution}
+
+\hr
+
+\visual{Books}{../../../../CommonInformation/Lessons/books.png}
+\section*{Reading Suggestion:}
+
+\bibliography{../../../../CommonInformation/bibliography}
+
+%   \begin{enumerate}
+%     \item
+%     \item
+%     \item
+%   \end{enumerate}
+
+\hr
+
+\visual{Links}{../../../../CommonInformation/Lessons/chainlink.png}
+\section*{Outside Readings and Links:}
+\begin{enumerate}
+    \item
+    \item
+    \item
+    \item
+\end{enumerate}
+
+\section*{\solutionsname} \loadSolutions
+
+\hr
+
+\mydisclaim \myfooter
+
+Last modified:  \flastmod
+
+\end{document}
+
+%%% Local Variables:
+%%% TeX-master: t
+%%% End:
